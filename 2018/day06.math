@@ -1,0 +1,106 @@
+(*
+To use this, you only need command line Wolfram Mathematica:
+
+    math < day06.math
+*)
+
+dist[point1_, point2_] := Abs[point1[[1]] - point2[[1]]] + Abs[point1[[2]] - point2[[2]]];
+
+MakeGrid[points_] := Module[
+    {dirs, maxx, maxy, grid, r, point, pointr, dir, i, j, k, curr, didAnything, w, h},
+    dirs = {{-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
+    {minx, miny} = Min /@ Transpose[points];
+    {maxx, maxy} = Max /@ Transpose[points];
+    {w, h} = {maxx - minx + 1, maxy - miny + 1};
+    grid = ConstantArray[{Null,Infinity}, {w, h}];
+    didAnything = True;
+    For[i = 1, i <= Length[points], i++,
+        point = points[[i]];
+        pointr = {point[[1]] - minx + 1, point[[2]] - miny + 1};
+        grid[[pointr[[1]], pointr[[2]]]] = {point, 0}
+    ];
+    r = 0;
+    While[
+        didAnything,
+        r += 1;
+        didAnything = False;
+        For[i = 1, i <= Length[points], i++,
+            point = points[[i]];
+            pointr = {point[[1]] + r - minx + 1, point[[2]] - miny + 1};
+            For[j = 1, j <= 4, j++,
+                dir = dirs[[j]];
+                For[k = 1, k <= r, k++,
+                    If[
+                        And[pointr[[1]] >= 1, pointr[[1]] <= w, pointr[[2]] >= 1, pointr[[2]] <= h],
+                        curr = grid[[pointr[[1]], pointr[[2]]]];
+                        If[
+                            Or[curr[[2]] > r],
+                                grid[[pointr[[1]], pointr[[2]]]] = {point, r};
+                                didAnything = True,
+                            If[
+                                curr[[2]] == r,
+                                    grid[[pointr[[1]], pointr[[2]]]] = {Null, r};
+                                    didAnything = True
+                            ];
+                        ];
+                    ];
+                    pointr[[1]] += dir[[1]];
+                    pointr[[2]] += dir[[2]];
+                ];
+            ];
+        ];
+    ];
+    grid[[;;,;;,1]]
+]
+
+part1[points_] := Module[
+    {grid, h, w, ptsInner, i, j},
+    grid = MakeGrid[points];
+    {h, w} = Dimensions[grid];
+    ptsInner = points;
+    For[i = 1, i <= w, i++,
+        ptsInner = DeleteCases[ptsInner, grid[[1, i]]];
+        ptsInner = DeleteCases[ptsInner, grid[[h, i]]];
+    ];
+    For[j = 1, j <= h, j++,
+        ptsInner = DeleteCases[ptsInner, grid[[j, 1]]];
+        ptsInner = DeleteCases[ptsInner, grid[[j, w]]];
+    ];
+    Max[Count[Flatten[grid, 1], #1]& /@ ptsInner]
+];
+
+part2[points_, d_] := Module[
+    {dirs, middle, point, foundAnything, j, k, r, result, dir},
+    dirs = {{-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
+    middle = Round[#1 / Length[points]]& /@ Total[points, {1}];
+    r = 0;
+    result = 0;
+    foundAnything = True;
+    While[
+        foundAnything,
+        foundAnything = False;
+        point = {middle[[1]] + r, middle[[2]]};
+        For[j = 1, j <= If[r == 0, 1, 4], j++,
+            dir = dirs[[j]];
+            For[k = Min[r, 1], k <= r, k++,
+                If[
+                    Total[dist[point, #1]& /@ points] < d,
+                        result += 1;
+                        foundAnything = True
+                ];
+                point[[1]] += dir[[1]];
+                point[[2]] += dir[[2]];
+            ];
+        ];
+        r += 1
+    ];
+    result
+];
+
+points = {{1, 1}, {1, 6}, {8, 3}, {3, 4}, {5, 5}, {8, 9}};
+Print["Test 1: ", part1[points]]
+Print["Test 2: ", part2[points, 32]]
+
+points = Import["day06.in"];
+Print["Part 1: ", part1[points]]
+Print["Part 2: ", part2[points, 10000]]
