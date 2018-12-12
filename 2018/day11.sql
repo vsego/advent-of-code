@@ -5,8 +5,7 @@
 -- To change which file is processed, do so below, in the \COPY line.
 --
 -- SQL was a poor choice for this and the part 2 ran for almost 5 hours.
--- There is a nice linear algebra interpretation, so I might redo this in
--- some other language in the future.
+-- There is a nice linear algebra interpretation, done in SciLab as day11.sc.
 
 \t
 \o /dev/null
