@@ -1,0 +1,302 @@
+' Gambas class file
+
+Private Map As New String[]
+Private xMin As Integer
+Private xMax As Integer
+Private yMax As Integer
+Private yMin As Integer
+Private FontFactor As Integer
+
+Private Sub Process_Coord(sFrom As String, sTo As String) As Integer[]
+  
+  Dim Result As New Integer[2]
+  
+  Result[0] = Val(sFrom)
+  If sTo = "" Then
+    Result[1] = Result[0]
+  Else
+    Result[1] = Val(sTo)
+  Endif
+
+  Return [Min(Result[0], Result[1]), Max(Result[0], Result[1])]
+
+End
+
+
+Private Sub Process_Line(sLine As String) As Integer[]
+
+  Dim rLine As New RegExp
+  Dim Result As New Integer[4]
+  Dim Result1 As New Integer[2]
+  Dim Result2 As New Integer[2]
+
+  rLine.Compile("([xy])=(-?\\d+)(?:..(-?\\d+))?, [xy]=(-?\\d+)(?:..(-?\\d+))?")
+  rLine.Exec(sLine)
+  If rLine.Count < 5 Then
+    Return Null
+  Endif
+  Result1 = Process_Coord(rLine[2].Text, rLine[3].Text)
+  Result2 = Process_Coord(rLine[4].Text, rLine[5].Text)
+  If rLine[1].Text = "x" Then
+    Result = Result1
+    Result.Insert(Result2)
+  Else
+    Result = Result2
+    Result.Insert(Result1)
+  Endif
+  
+  Return Result
+
+End
+
+Private Sub Set_Map_Line(x1 As Integer, x2 As Integer, y As Integer, value As String)
+
+  Dim sTmp As String
+
+  sTmp = String$(x2 - x1 + 1, value)
+  Map[y] = Left$(Map[y], x1 - 1) & sTmp & Right$(Map[y], - x2)
+
+End
+
+
+Private Sub Load_Map(sFileName As String) As String[]
+
+  Dim hFile As File
+  Dim sLine As String
+  Dim xy As New Integer[4]
+  Dim y As Integer
+  Dim sTmp As String
+
+  xMin = 500
+  xMax = 500
+  yMin = -1
+  yMax = 0
+  Map = ["+"]
+
+  hFile = Open sFileName For Input
+
+  While Not Eof(hFile)
+    Line Input #hFile, sLine
+    xy = Process_Line(sLine)
+    If xy = Null Then
+      Continue
+    Endif
+
+    If xy[0] - 1 < xMin Then
+      sTmp = String$(xMin - xy[0] + 1, ".")
+      xMin = xy[0] - 1
+      For y = 0 To yMax
+        Map[y] = sTmp & Map[y]
+      Next
+    Endif
+
+    If xy[1] + 1 > xMax Then
+      sTmp = String$(xy[1] - xMax + 1, ".")
+      xMax = xy[1] + 1
+      For y = 0 To yMax
+        Map[y] = Map[y] & sTmp
+      Next
+    Endif
+
+    If yMin = -1 Or xy[2] < yMin Then
+      yMin = xy[2]
+    Endif
+
+    If xy[3] > yMax Then
+      sTmp = String$(xMax - xMin + 1, ".")
+      For y = yMax + 1 To xy[3]
+        Map.Add(sTmp)
+      Next
+      yMax = xy[3]
+    Endif
+
+    xy[0] -= xMin
+    xy[1] -= xMin
+
+    For y = xy[2] To xy[3]
+      Set_Map_Line(xy[0] + 1, xy[1], y, "#")
+      sTmp = String$(xy[1] - xy[0] + 1, "#")
+      Map[y] = Left$(Map[y], xy[0]) & sTmp & Right$(Map[y], - xy[1] - 1)
+    Next
+
+  Wend
+
+  Return Map
+
+End
+
+Private Sub Is_Water(x As Integer, y As Integer) As Boolean
+
+  Dim c As String
+  If y >= Map.Length Then
+    Return False
+  Endif
+  c = Mid$(Map[y], x, 1)
+  Return c = "+" Or c = "|" Or c = "~"
+
+End
+
+Private Sub Is_Still_Water(x As Integer, y As Integer) As Boolean
+
+  Dim c As String
+  If y >= Map.Length Then
+    Return False
+  Endif
+  c = Mid$(Map[y], x, 1)
+  Return c = "~"
+
+End
+
+Private Sub Is_Stream(x As Integer, y As Integer) As Boolean
+
+  Dim c As String
+  If y >= Map.Length Then
+    Return False
+  Endif
+  c = Mid$(Map[y], x, 1)
+  Return c = "+" Or c = "|"
+
+End
+
+Private Sub Is_Open(x As Integer, y As Integer) As Boolean
+
+  Dim c As String
+  If y < 0 Then
+    Return False
+  Endif
+  If y >= Map.Length Then
+    Return True
+  Endif
+  c = Mid$(Map[y], x, 1)
+  Return c = "."
+
+End
+
+Private Sub Water_Spread(x As Integer, y As Integer, direction As Integer) As Integer
+
+  Dim nx As Integer
+
+  If y < 0 Or y >= Map.Length - 1 Then
+    Return x
+  Endif
+
+  While x > 1 And x < Len(Map[y]) - 1
+    nx = x + direction
+    If Not (Is_Open(nx, y) Or Is_Stream(nx, y)) Or Is_Stream(nx, y + 1) Then
+      Break
+    Endif
+    x = nx
+    If Is_Open(nx, y + 1) Then
+      Break
+    Endif
+  Wend
+
+  Return x
+
+End
+
+Private Sub Spill_Water()
+
+  Dim x, x1, x2, y, y0, i, Cnt As Integer
+  Dim New_Water As New Object[]
+  Dim Old_Water As Object[]
+  Dim Spillage_Done As Boolean
+
+  New_Water.Insert([[500 - xMin + 1, 0]], 0)
+  While New_Water.Length > 0
+    Old_Water = New_Water
+    New_Water = []
+    For i = 0 To Old_Water.Length - 1
+      x = Old_Water[i][0]
+      y = Old_Water[i][1]
+      If Not Is_Stream(x, y) Then
+        Continue
+      Endif
+      y0 = y
+      While y < Map.Length - 1 And Is_Open(x, y + 1)
+        y += 1
+        Set_Map_Line(x, x, y, "|")
+      Wend
+      If y >= Map.Length - 1 Then
+        Continue
+      Endif
+      If Is_Stream(x, y + 1) Then
+        Continue
+      Endif
+      Spillage_Done = False
+      While Not Spillage_Done
+        x1 = Water_Spread(x, y, -1)
+        x2 = Water_Spread(x, y, 1)
+        If Is_Open(x1, y + 1) Then
+          Spillage_Done = True
+          New_Water.Add([x1, y])
+        Endif
+        If Is_Open(x2, y + 1) Then
+          Spillage_Done = True
+          New_Water.Add([x2, y])
+        Endif
+        If Spillage_Done Then
+          Set_Map_Line(x1, x2, y, "|")
+        Else
+          Set_Map_Line(x1, x2, y, "~")
+        Endif
+        y -= 1
+      Wend
+    Next
+  Wend
+
+  MapCanvas.Text = Map.Join("\n")
+
+  Cnt = 0  ' We'll count + too, so we deduct it right away
+  For y = yMin To yMax
+    For x = 1 To Len(Map[y])
+      If Is_Water(x, y) Then
+        Cnt += 1
+      Endif
+    Next
+  Next
+  Part1Result.Text = Cnt
+
+  Cnt = 0  ' We'll count + too, so we deduct it right away
+  For y = yMin To yMax
+    For x = 1 To Len(Map[y])
+      If Is_Still_Water(x, y) Then
+        Cnt += 1
+      Endif
+    Next
+  Next
+  Part2Result.Text = Cnt
+
+End
+
+Public Sub OpenPipeButton_Click()
+
+  Spill_Water
+
+End
+
+Public Sub Form_Open()
+
+  FontFactor = MapCanvas.Height / (MapCanvas.Font.TextHeight("#") / MapCanvas.Font.Size)
+
+End
+
+Public Sub InputFileList_Click()
+
+  Dim sFileName As String
+
+  If InputFileList.Index == 0 Then
+    If Dialog.OpenFile(False) Then Return
+    sFileName = Dialog.Path
+  Else If InputFileList.Index = 1 Then
+    sFileName = "day17.test"
+  Else
+    sFileName = "day17.in"
+  Endif
+
+  Map = Load_Map(sFileName)
+  MapCanvas.Font.Size = Min(17, Max(5, FontFactor / Map.Length))
+  MapCanvas.Text = Map.Join("\n")
+  OpenPipeButton.Enabled = True
+
+End

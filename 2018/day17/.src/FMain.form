@@ -1,0 +1,42 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,118,69)
+  Expand = True
+  Icon = Picture["aoc.png"]
+  Resizable = False
+  { Label1 Label
+    MoveScaled(1,63,6,2)
+    AutoResize = True
+    Text = ("Part 1:")
+  }
+  { Label4 Label
+    MoveScaled(1,66,6,2)
+    AutoResize = True
+    Text = ("Part 2:")
+  }
+  { Part1Result TextBox
+    MoveScaled(7,63,9,2)
+    ReadOnly = True
+    Border = False
+  }
+  { Part2Result TextBox
+    MoveScaled(7,66,9,2)
+    ReadOnly = True
+    Border = False
+  }
+  { MapCanvas TextArea
+    MoveScaled(18,6,99,62)
+    Font = Font["DejaVu Sans Mono,5"]
+    ReadOnly = True
+  }
+  { OpenPipeButton Button
+    MoveScaled(1,1,116,4)
+    Enabled = False
+    Text = ("Open the pipe")
+  }
+  { InputFileList ListBox
+    MoveScaled(1,6,16,56)
+    List = [("Load from disk"), ("Test"), ("Input")]
+  }
+}

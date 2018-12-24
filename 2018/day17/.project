@@ -1,0 +1,17 @@
+# Gambas Project File 3.0
+# Compiled with Gambas 3.10.0
+Title=Advent of Code 2018, day 17
+Startup=FMain
+Icon=aoc.png
+Version=1.0.3
+Component=gb.image
+Component=gb.gui
+Component=gb.form
+Component=gb.form.dialog
+Component=gb.pcre
+Authors="Vedran Sego <vsego@vsego.org>"
+TabSize=2
+Language=en_US
+Vendor=vsego
+Packager=1
+WebSite=http://vsego.org/
