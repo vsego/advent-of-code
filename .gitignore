@@ -4,6 +4,8 @@
 .*.swp
 *.o
 *.class
+*.jar
 *.gambas
 !day17/**/*
 a.out
+META-INF

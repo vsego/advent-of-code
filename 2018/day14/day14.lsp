@@ -1,0 +1,82 @@
+#!/usr/bin/env newlisp
+
+(define (solve part inp)
+  ; The recipes list will be reversed because end-of-the list operations seem
+  ; to be very slow in NewLisp.
+  (define (move_elf current value (shift 1))
+    (set 'new_value (+ current (- shift 1 value)))
+    (while (< new_value 0) (inc new_value (length recipes)))
+    new_value
+  )
+  (if (= part 1)
+    (begin
+      (define (new_recipe new_value)
+        (push new_value recipes)
+        (if (>= (length recipes) endgame)
+          (set 'result (reverse (join
+            (map (fn (r) (string r))
+              (slice recipes (if (> (length recipes) endgame) 1 0) 10)
+            )
+          )))
+        )
+      )
+      (set 'endgame (+ (int inp 0 10) 10))
+    )
+    (begin
+      (define (new_recipe new_value)
+        (push new_value recipes)
+        (if (and (nil? compare_to) (= endgame_len (length recipes)))
+          (set 'compare_to recipes)
+        )
+        (unless (nil? compare_to)
+          (pop compare_to -1)
+          (push new_value compare_to)
+          (if (= compare_to endgame)
+            (set 'result (- (length recipes) endgame_len))
+          )
+        )
+        (if (= (% (length recipes) 10000)) (println (length recipes)))
+      )
+      (set 'endgame (map (fn(el) (int el)) (reverse (explode inp))))
+      (set 'endgame_len (length endgame))
+      (set 'compare_to nil)
+    )
+  )
+  (set 'recipes (list 7 3))
+  (set 'elf1 0)
+  (set 'elf2 1)
+  (set 'result nil)
+  (while (nil? result)
+    (set 'value1 (recipes elf1))
+    (set 'value2 (recipes elf2))
+    (set 'new_value (+ value1 value2))
+    (if (> new_value 9)
+      (begin
+        (new_recipe (/ new_value 10))
+        (new_recipe (% new_value 10))
+        (set 'elf1 (move_elf elf1 value1 2))
+        (set 'elf2 (move_elf elf2 value2 2))
+      ) (begin
+        (new_recipe new_value)
+        (set 'elf1 (move_elf elf1 value1))
+        (set 'elf2 (move_elf elf2 value2))
+      )
+    )
+  )
+  result
+)
+
+;(println "Test 1a: " (solve 1 "9"))
+;(println "Test 1b: " (solve 1 "5"))
+;(println "Test 1c: " (solve 1 "18"))
+;(println "Test 1d: " (solve 1 "2018"))
+
+(println "Test 2a: " (solve 2 "51589"))
+(println "Test 2b: " (solve 2 "01245"))
+(println "Test 2c: " (solve 2 "92510"))
+(println "Test 2d: " (solve 2 "59414"))
+
+(println "Part 1: " (solve 1 "030121"))
+(println "Part 2: " (solve 2 "030121"))
+
+(exit)
