@@ -1,0 +1,35 @@
+a = 1; b = 0; c = 0; d = 0; e = 0; f = 0
+    goto 17
+ 1: c = 1
+    a += sum of divisors of b
+    HALT
+17: b = b + 2
+18: b = b * b
+19: b = e * b
+20: b = b * 11
+21: d = d + 3
+22: d = d * e
+23: d = d + 9
+24: b = b + d
+    if a > 0:
+        (see below)
+        a = 0; b = 10551311; c = 0; d = 10550400; f = 0
+    goto 1
+
+
+a = 1; b = 0; c = 0; d = 0; e = 0; f = 0
+b = b + 2
+b = b * b
+b = 19 * b
+b = b * 11
+d = d + 3
+d = d * 22
+d = d + 9
+b = b + d
+d = 27
+d = d * 28
+d = 29 + d
+d = 30 * d
+d = d * 14
+d = d * 32
+b = b + d

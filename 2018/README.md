@@ -27,7 +27,7 @@ problem's `README.md`):
 * [Day 16](day16/): D
 * [Day 17](day17/): Gambas
 * [Day 18](day18/): Rust
-* [Day 19](day19/): -
+* [Day 19](day19/): Kotlin
 * [Day 20](day20/): NewLISP
 * [Day 21](day21/): -
 * [Day 22](day22/): -
