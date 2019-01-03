@@ -29,7 +29,7 @@ problem's `README.md`):
 * [Day 18](day18/): Rust
 * [Day 19](day19/): Kotlin
 * [Day 20](day20/): NewLISP
-* [Day 21](day21/): -
+* [Day 21](day21/): Nim
 * [Day 22](day22/): -
 * [Day 23](day23/): -
 * [Day 24](day24/): -
