@@ -30,7 +30,7 @@ problem's `README.md`):
 * [Day 19](day19/): Kotlin
 * [Day 20](day20/): NewLISP
 * [Day 21](day21/): Nim
-* [Day 22](day22/): -
+* [Day 22](day22/): Python
 * [Day 23](day23/): -
 * [Day 24](day24/): -
 * [Day 25](day25/): -
