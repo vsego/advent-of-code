@@ -10,3 +10,4 @@
 a.out
 META-INF
 nimcache
+__pycache__
