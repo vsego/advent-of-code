@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 
+from intcode02 import Intcode
+
+
 def read_input(fname="day02.in"):
     """
     Read the input file and return the list of numbers that it contains.
@@ -13,33 +16,16 @@ def read_input(fname="day02.in"):
         return [int(v.strip()) for v in next(f).split(",")]
 
 
-def run_prog(prog):
+def run_prog(mem):
     """
     Run the program.
 
-    :param prog: A program (a `list` of `int` values).
+    :param mem: A program (a `list` of `int` values).
     :raise ValueError: Raised if the program is invalid.
     """
-    p = 0
-    while prog[p] != 99:
-        try:
-            v1 = prog[prog[p + 1]]
-            v2 = prog[prog[p + 2]]
-            pr = prog[p + 3]
-            assert 0 <= pr < len(prog)
-        except IndexError:
-            raise ValueError(f"encountered invalid variable position")
-        except AssertionError:
-            raise ValueError("encountered invalid variable position {pr}")
-        if prog[p] == 1:
-            prog[pr] = v1 + v2
-        elif prog[p] == 2:
-            prog[pr] = v1 * v2
-        else:
-            raise ValueError(f"encountered invalid instruction {p}")
-        p += 4
-        if p >= len(prog):
-            raise ValueError("unexpected end of program")
+    prog = Intcode(mem)
+    prog.run()
+    mem[:] = prog.mem
 
 
 def prog2str(prog):
