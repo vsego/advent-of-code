@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -euo pipefail
+
 day="$(printf "%02d" "$((1+$(ls day*.in | sort | tail -1 | sed -r 's/day([0-9]+)\.in/\1/')))")"
 
 mv /tmp/input.txt "day$day.in"
