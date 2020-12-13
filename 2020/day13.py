@@ -6,42 +6,63 @@ Solution for
 """
 
 import math
-import sys
+
+from common import AoCSolution, main
 
 
-class Day13:
+class Day13(AoCSolution):
     """
     Solution for
     [Day 13 of Advent of Code 2020](https://adventofcode.com/2020/day/13).
     """
 
+    tests = [
+        {
+            "args": (939, [7, 13, None, None, 59, None, 31, 19]),
+            "results": {1: 295, 2: 1068781},
+        },
+        {
+            "args": (None, [17, None, 13, 19]),
+            "results": {2: 3417},
+        },
+        {
+            "args": (None, [67, 7, 59, 61]),
+            "results": {2: 754018},
+        },
+        {
+            "args": (None, [67, None, 7, 59, 61]),
+            "results": {2: 779210},
+        },
+        {
+            "args": (None, [67, 7, None, 59, 61]),
+            "results": {2: 1261476},
+        },
+        {
+            "args": (None, [1789, 37, 47, 1889]),
+            "results": {2: 1202161486},
+        },
+    ]
+
     def __init__(self):
         self.min_time = None
         self.buses = None
 
-    @classmethod
-    def from_values(cls, min_time, buses):
+    def init_from_values(self, min_time, buses):
         """
         Return a `Day13` instance initialised from `min_time` and `buses`.
         """
-        result = cls()
-        result.min_time = min_time
-        result.buses = buses
-        return result
+        self.min_time = min_time
+        self.buses = buses
 
-    @classmethod
-    def from_file(cls, fname):
+    def init_from_file(self, f):
         """
-        Return a `Day13` instance initialised from the text file `fname`.
+        Return a `Day13` instance initialised from the text file `f`.
         """
-        result = cls()
-        with open(fname) as f:
-            result.min_time = int(next(f).strip())
-            result.buses = [
-                None if bus == "x" else int(bus)
-                for bus in next(f).strip().split(",")
-            ]
-        return result
+        self.min_time = int(next(f).strip())
+        self.buses = [
+            None if bus == "x" else int(bus)
+            for bus in next(f).strip().split(",")
+        ]
 
     def part1(self):
         """
@@ -110,33 +131,6 @@ class Day13:
             (bus, -idx % bus) for idx, bus in enumerate(self.buses) if bus
         ])
 
-    @classmethod
-    def test(cls, part, min_time, buses, expected):
-        """
-        Return the solution for part 2.
-        """
-        print(f"Testing part {part} for ({min_time}, {buses})...", end="")
-        result = getattr(cls.from_values(min_time, buses), f"part{part}")()
-        if result == expected:
-            print(" Ok.")
-        else:
-            print(f" Failed, with {result} != {expected}.")
-
 
 if __name__ == "__main__":
-    try:
-        fname = sys.argv[1]
-    except IndexError:
-        # Run tests.
-        Day13.test(1, 939, [7, 13, None, None, 59, None, 31, 19], 295)
-        Day13.test(2, None, [7, 13, None, None, 59, None, 31, 19], 1068781)
-        Day13.test(2, None, [17, None, 13, 19], 3417)
-        Day13.test(2, None, [67, 7, 59, 61], 754018)
-        Day13.test(2, None, [67, None, 7, 59, 61], 779210)
-        Day13.test(2, None, [67, 7, None, 59, 61], 1261476)
-        Day13.test(2, None, [1789, 37, 47, 1889], 1202161486)
-    else:
-        # Run the real thing.
-        day13 = Day13.from_file(fname)
-        print("Part 1:", day13.part1())
-        print("Part 2:", day13.part2())
+    main(Day13)
